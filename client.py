@@ -1,6 +1,6 @@
 import sys
-from PyQt5 import QtWidgets
-from gui import guimain
+from PyQt5 import QtWidgets, QtCore
+from gui import guimain, guireg
 
 from twisted.internet.protocol import ClientFactory
 from twisted.protocols.basic import LineOnlyReceiver
@@ -11,12 +11,21 @@ class ConnectorProtocol(LineOnlyReceiver):
 
     def connectionMade(self):
         self.factory.window.protocol = self
-        self.factory.window.text_list.addItem('Connection is created...')
-        self.factory.window.text_list.addItem('Send the message like \'login:your_name\'')
+        self.factory.window.text_list.addItem('Соединение установлено...')
+        self.factory.window.text_list.addItem('Отправьте сообщение вида \'login:your_name\'')
 
     def lineReceived(self, line: bytes):
         message = line.decode()
-        self.factory.window.text_list.addItem(message)
+
+        if message.startswith("#USRCNCT"):
+            message = message.replace("#USRCNCT", "")
+            self.factory.window.user_list.addItem(message)
+
+        elif message.startswith("#USRCLR"):
+            self.factory.window.user_list.clear()
+
+        else:
+            self.factory.window.text_list.addItem(message)
 
 
 class Connector(ClientFactory):
@@ -27,10 +36,10 @@ class Connector(ClientFactory):
         self.window = app_window
 
     def clientConnectionFailed(self, connector, reason):
-        self.window.text_list.addItem('Connection failed... Try again later...')
+        self.window.text_list.addItem('Соединение не установлено. Попробуйте позже')
 
     def clientConnectionLost(self, connector, reason):
-        self.window.text_list.addItem('Connection lost... wait or try later...')
+        self.window.text_list.addItem('Соединение с сервером потеряно. Попробуйте позже')
 
 
 class ChatWindow(QtWidgets.QMainWindow, guimain.Ui_MainWindow):
@@ -44,6 +53,8 @@ class ChatWindow(QtWidgets.QMainWindow, guimain.Ui_MainWindow):
 
     def init_handlers(self):
         self.send_button.clicked.connect(self.send_message)
+        self.exit_button.clicked.connect(self.close)
+        self.file_button.clicked.connect(self.open_dialog)
 
     def closeEvent(self, event):
         self.reactor.callFromThread(self.reactor.stop)
@@ -55,9 +66,27 @@ class ChatWindow(QtWidgets.QMainWindow, guimain.Ui_MainWindow):
                 self.protocol.sendLine(message.encode())
                 self.message_text.setText('')
             else:
-                self.text_list.addItem('Can\'t send the message: a message is empty')
+                self.text_list.addItem('Нельзя отправить пустое сообщение')
         except:
-            self.text_list.addItem('Can\'t send the message')
+            self.text_list.addItem('Невозможно отправить сообщение')
+
+    def open_dialog(self):
+        options = QtWidgets.QFileDialog.Options()
+        result = QtWidgets.QFileDialog.getOpenFileName(self, "Загрузить файл", "",
+                                                       "All Files (*);;(*.jpg);;(*.png);;(*.txt)",
+                                                       options=options)
+        if result:
+            print(result)
+
+
+class RegWindow(QtWidgets.QMainWindow, guireg.Ui_Dialog):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
+
+
+
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 from twisted.internet import reactor
 from twisted.internet.protocol import ServerFactory, connectionDone
 from twisted.protocols.basic import LineOnlyReceiver
+
 import datetime
 
 
@@ -11,6 +12,10 @@ class ServerProtocol(LineOnlyReceiver):
     def connectionLost(self, reason=connectionDone):
         try:
             self.factory.clients.remove(self)
+            self.factory.connections.remove(self.login)
+
+            for user in self.factory.clients:
+                user.send_clients(self)
         except:
             pass
 
@@ -31,14 +36,18 @@ class ServerProtocol(LineOnlyReceiver):
 
                 for user in self.factory.clients:
                     if user.login == login:
-                        self.sendLine("Login already exists! Try another one".encode())
+                        self.sendLine("Логин уже занят! Попробуйте придумать другой.".encode())
                         return
 
                 self.login = login
+                self.factory.connections.append(login)
+
                 self.factory.clients.append(self)
                 self.factory.send_history(self)
+
+                self.factory.send_clients(self)
             else:
-                self.sendLine("Invalid login".encode())
+                self.sendLine("Неверный логин".encode())
 
 
 class Server(ServerFactory):
@@ -46,21 +55,33 @@ class Server(ServerFactory):
     clients: list
     history: list
 
+    connections: list
+
     def startFactory(self):
         self.clients = []
         self.history = []
-        print("Server started")
+        self.connections = []
+        print("Сервер запущен")
 
     def stopFactory(self):
-        print("Server closed")
+        print("Сервер выключен")
 
     def send_history(self, client: ServerProtocol):
-        client.sendLine("Welcome!".encode())
+        client.sendLine("Дратути!".encode())
 
         last_messages = self.history[-10:]
 
         for msg in last_messages:
             client.sendLine(msg.encode())
+
+    def send_clients(self, client: ServerProtocol):
+        clients_list = ["#USRCNCT" + usr for usr in self.connections]
+
+        USRCLRmessage = "#USRCLR"
+        client.sendLine(USRCLRmessage.encode())
+
+        for usr in clients_list:
+            client.sendLine(usr.encode())
 
 
 if __name__ == '__main__':
