@@ -14,8 +14,8 @@ class ServerProtocol(LineOnlyReceiver):
             self.factory.clients.remove(self)
             self.factory.connections.remove(self.login)
 
-            for user in self.factory.clients:
-                user.send_clients(self)
+            #for user in self.factory.clients:
+                #user.send_clients(self)
         except:
             pass
 
@@ -45,9 +45,10 @@ class ServerProtocol(LineOnlyReceiver):
                 self.factory.clients.append(self)
                 self.factory.send_history(self)
 
+                #for user in self.factory.clients:
                 self.factory.send_clients(self)
             else:
-                self.sendLine("Неверный логин".encode())
+                self.sendLine("Вы не авторизованы и не можете отправлять сообщения.".encode())
 
 
 class Server(ServerFactory):

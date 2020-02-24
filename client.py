@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore, QtWidgets
 from gui import guimain, guireg
 
 from twisted.internet.protocol import ClientFactory
@@ -55,6 +55,7 @@ class ChatWindow(QtWidgets.QMainWindow, guimain.Ui_MainWindow):
         self.send_button.clicked.connect(self.send_message)
         self.exit_button.clicked.connect(self.close)
         self.file_button.clicked.connect(self.open_dialog)
+        self.text_list.itemDoubleClicked.connect(self.save_clickEvent)
 
     def closeEvent(self, event):
         self.reactor.callFromThread(self.reactor.stop)
@@ -71,9 +72,34 @@ class ChatWindow(QtWidgets.QMainWindow, guimain.Ui_MainWindow):
             self.text_list.addItem('Невозможно отправить сообщение')
 
     def open_dialog(self):
-        options = QtWidgets.QFileDialog.Options()
         result = QtWidgets.QFileDialog.getOpenFileName(self, "Загрузить файл", "",
-                                                       "All Files (*);;(*.jpg);;(*.png);;(*.txt)",
+                                                       "All Files (*);;Изображения (*.jpg *.jpeg *.png);;"
+                                                       "Текстовые файлы (*.txt)")
+        if result:
+            file = open(result[0], 'r')
+            with file:
+                try:
+                    data = file.read()
+                    iconfile = QtGui.QIcon('gui/icon/download.png')
+                    item = QtWidgets.QListWidgetItem()
+
+                    item.setIcon(iconfile)
+                    item.setText(file.name)
+
+                    self.text_list.addItem(item)
+                    self.text_list.setIconSize(QtCore.QSize(32, 32))
+
+                except:
+                    pass
+
+    def save_clickEvent(self, item):
+        print(item.text())
+
+    def save_dialog(self):
+        options = QtWidgets.QFileDialog.Options()
+        result = QtWidgets.QFileDialog.getSaveFileName(self, "Сохранить файл", "",
+                                                       "All Files (*);;Изображения (*.jpg *.jpeg *.png);;"
+                                                       "Текстовые файлы (*.txt)",
                                                        options=options)
         if result:
             print(result)
@@ -85,13 +111,10 @@ class RegWindow(QtWidgets.QMainWindow, guireg.Ui_Dialog):
         self.setupUi(self)
 
 
-
-
-
-
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     import qt5reactor
+
     qt5reactor.install()
 
     window = ChatWindow()

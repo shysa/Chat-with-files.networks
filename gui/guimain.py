@@ -16,24 +16,33 @@ class Ui_MainWindow(object):
         MainWindow.resize(800, 575)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+
         self.text_list = QtWidgets.QListWidget(self.centralwidget)
         self.text_list.setGeometry(QtCore.QRect(10, 10, 601, 431))
         self.text_list.setObjectName("text_list")
+        self.text_list.setSpacing(2)
+        self.text_list.setWordWrap(True)
+
         self.user_list = QtWidgets.QListWidget(self.centralwidget)
         self.user_list.setGeometry(QtCore.QRect(620, 10, 171, 431))
         self.user_list.setObjectName("user_list")
+
         self.send_button = QtWidgets.QPushButton(self.centralwidget)
         self.send_button.setGeometry(QtCore.QRect(620, 450, 171, 31))
         self.send_button.setObjectName("send_button")
+
         self.file_button = QtWidgets.QPushButton(self.centralwidget)
         self.file_button.setGeometry(QtCore.QRect(620, 490, 171, 31))
         self.file_button.setObjectName("file_button")
+
         self.exit_button = QtWidgets.QPushButton(self.centralwidget)
         self.exit_button.setGeometry(QtCore.QRect(620, 530, 171, 31))
         self.exit_button.setObjectName("exit_button")
+
         self.message_text = QtWidgets.QTextEdit(self.centralwidget)
         self.message_text.setGeometry(QtCore.QRect(10, 450, 601, 111))
         self.message_text.setObjectName("message_text")
+
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
