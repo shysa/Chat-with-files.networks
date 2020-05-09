@@ -2,12 +2,11 @@ import random
 import datetime
 
 import utils.listener
-pl = utils.listener.PortListener()
-
+plistener = utils.listener.PortListener()
 
 def send(text, file=False, file_name=None):
 # ------------ splitting on frames
-    print('framing...', datetime.datetime.now())
+    #print('framing...', datetime.datetime.now())
     if not file:
         text = text.encode('utf-8')
     frame_amount = len(text) // 128
@@ -42,7 +41,7 @@ def send(text, file=False, file_name=None):
     frames[len(frames)-1] = frames[len(frames)-1] + bytes([ord(')') for i in range(133-len(frames[len(frames)-1]))])
 
 # ------------ encoding [4,7]
-    print('encoding...', datetime.datetime.now())
+    #print('encoding...', datetime.datetime.now())
     frames_encoded = []
     for frame in frames:
         encoding1 = frame
@@ -79,7 +78,7 @@ def send(text, file=False, file_name=None):
         i = i + len(frame)
     print('total send', i, ', frames:', len(frames_encoded))
     print('send', frames_encoded[0])"""
-    print('transmitting...', datetime.datetime.now())
+    #print('transmitting...', datetime.datetime.now())
     return frames_encoded
 
 
@@ -94,7 +93,7 @@ def receive(frames_encoded):
         7: 5
     }
     frames = []
-    print('decoding...', datetime.datetime.now())
+    #print('decoding...', datetime.datetime.now())
 
     #print('rec',len(frames_encoded))
 
@@ -137,7 +136,7 @@ def receive(frames_encoded):
     """for frame in frames:
         print('rec', frame)"""
     #frames[0] = frames[0][3:]           # KOSTYL!!!!!!!!!!!!!!!!!!!111
-    print('recovering...', datetime.datetime.now())
+    #print('recovering...', datetime.datetime.now())
 
     message_id = 0
     frame_amount = 0
@@ -155,6 +154,7 @@ def receive(frames_encoded):
             break
     if isFile:
         file_name = frames[prim_frame][5:frames[prim_frame][4]+6].decode()
+        file_name = file_name[:file_name.find('?')]
         text = bytes([])
     else:
         text = frames[prim_frame][5:frames[prim_frame][4]+6]
@@ -164,13 +164,14 @@ def receive(frames_encoded):
         text = text.decode()
         print(text)
 
-        pl.line_recieved(text)
+        plistener.line_recieved(text)
 
-    print('ready!', datetime.datetime.now())
+    #print('ready!', datetime.datetime.now())
+
     if isFile:
         receive_file(text, file_name)
 
-        pl.file_recieved(file_name)
+        plistener.file_recieved(file_name)
 
     #threading.Timer(0.1, receive(phizical.ser_read())).start()
 
@@ -185,12 +186,10 @@ def send_file(file):
 
 
 def receive_file(data, file_name):
-    file_name = file_name[:file_name.find(')')]
     print('received file:', file_name)
-    f = open('downloads\\' + file_name, 'wb')
+    f = open('../downloads\\' + file_name, 'wb')
     f.write(data)
     f.close()
-
     return file_name
 
 

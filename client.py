@@ -66,11 +66,13 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.mInfo.triggered.connect(self.create_dialog)
 
     def close_connection(self):
+        phizical.ser_close()
         print("Connection closed")
         QtWidgets.qApp.quit()
 
     def init_connection(self):
         try:
+            phizical.portinit()
             phizical.ser_open()
             phizical.ser_read()
             print("Connection open! Start reading")
@@ -137,7 +139,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
     @QtCore.pyqtSlot(str)
     def show_file(self, content):
-        iconfile = QtGui.QIcon('gui/icon/download.png')
+        iconfile = QtGui.QIcon('../gui/icon/download.png')
 
         item = QtWidgets.QListWidgetItem()
         item.setIcon(iconfile)
@@ -148,7 +150,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.textList.setIconSize(QtCore.QSize(32, 32))
 
     def listen(self):
-        self.port_listener = listener.PortListener()
+        self.port_listener = channel.plistener
         self.port_listener.line.connect(self.show_message)
         self.port_listener.file.connect(self.show_file)
 

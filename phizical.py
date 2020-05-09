@@ -60,13 +60,19 @@ def portinit(com=utils.parser.get_port_parameters()):
         ser_1.port = com[1]
 
 
+def ser_close():
+    try:
+        ser_1.close()
+    except Exception as e:
+        print("error close serial port: " + str(e))
+        exit()
+
 priem = 0
 read_delay = 0.5
 frames = []
 
 
 def ser_open():
-    portinit()
     try:
         ser_1.open()
     except Exception as e:
@@ -107,7 +113,7 @@ def ser_read(ser=ser_1):
             if priem == 0:
                 priem = 1
                 read_delay = 0.0001
-            #print('in_waiting', ser_2.in_waiting)
+            print('in_waiting', ser_1.in_waiting)
             while ser.in_waiting >= 238:
                 response = ser.read(238)
                 #print('READ', ser_2.in_waiting, datetime.datetime.now())

@@ -20,7 +20,7 @@ class Ui_dialog(object):
         sizePolicy.setHeightForWidth(dialog.sizePolicy().hasHeightForWidth())
         dialog.setSizePolicy(sizePolicy)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("gui/icon/info.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../gui/icon/info.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         dialog.setWindowIcon(icon)
         dialog.setModal(True)
         self.verticalLayoutWidget = QtWidgets.QWidget(dialog)
