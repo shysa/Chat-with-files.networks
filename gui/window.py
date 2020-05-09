@@ -44,7 +44,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
 
-        self.message = QtWidgets.QTextEdit(self.centralwidget)
+        self.message = QtWidgets.QLineEdit(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -52,6 +52,7 @@ class Ui_MainWindow(object):
         self.message.setSizePolicy(sizePolicy)
         self.message.setMaximumSize(QtCore.QSize(16777215, 100))
         self.message.setFont(QtGui.QFont('Helvetica', 10))
+        self.message.setAlignment(QtCore.Qt.AlignTop)
         self.message.setObjectName("message")
         self.horizontalLayout.addWidget(self.message)
 

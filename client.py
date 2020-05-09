@@ -27,6 +27,8 @@ import channel
 # save_dialog       открытие модального диалогового окна вы-
 #                   бора директории для сохранения скачивае-
 #                   мого файла
+# show_service      добавление служебного сообщения (об
+#                   ошибке) в основное окно
 # show_message      добавление нового сообщения в основное
 #                   окно
 # show_file         добавление строки файла в основное окно
@@ -53,6 +55,8 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
     def init_handlers(self):
         self.bSend.clicked.connect(self.send_message)
+        self.bSend.setAutoDefault(True)
+        self.message.returnPressed.connect(self.bSend.click)
         self.bSendFile.clicked.connect(self.open_dialog)
         self.textList.itemDoubleClicked.connect(self.save_dialog)
 
@@ -63,15 +67,16 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
     def close_connection(self):
         print("Connection closed")
-        quit()
+        QtWidgets.qApp.quit()
 
     def init_connection(self):
         try:
             phizical.ser_open()
             phizical.ser_read()
             print("Connection open! Start reading")
+            self.show_service("Соединение установлено")
         except:
-            self.show_message("Невозможно установить соединение с сервером")
+            self.show_service("Невозможно установить соединение")
 
     def create_dialog(self):
         if not self.infoDialog:
@@ -80,7 +85,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
     def send_message(self):
         try:
-            message = self.message.toPlainText()
+            message = self.message.text()
             if len(message) > 0:
                 # TODO: как сделать разные надписи для машины1 и машины2?
                 # TODO: как словить приход? :D точнее, как понять когда пинать и вызывать receive, мне же еще надо на
@@ -92,23 +97,21 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
                 self.message.clear()
             else:
-                self.show_message('Нельзя отправить пустое сообщение')
+                self.show_service('Нельзя отправить пустое сообщение')
         except:
-            self.show_message('Невозможно отправить сообщение')
+            self.show_service('Невозможно отправить сообщение')
 
     def open_dialog(self):
         filepath = QtWidgets.QFileDialog.getOpenFileName(self, "Загрузить файл", "")[0]
         if filepath:
-            file = open(filepath, 'r')
-            with file:
-                try:
-                    print(file.name)
-                    f = QtCore.QFileInfo(filepath)
+            try:
+                f = QtCore.QFileInfo(filepath)
+                print(f.absoluteFilePath())
 
-                    phizical.ser_write(channel.send_file(file.name))
-                    self.show_file(f.fileName())
-                except:
-                    self.show_message('Невозможно прикрепить файл')
+                phizical.ser_write(channel.send_file(f.absoluteFilePath()))
+                self.show_file(f.fileName())
+            except:
+                self.show_service('Невозможно прикрепить файл')
 
     def save_dialog(self):
         item = self.textList.currentItem()
@@ -120,6 +123,12 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
             # TODO: указывать полученную директорию
             # channel.receive()
+
+    def show_service(self, content):
+        item = QtWidgets.QListWidgetItem()
+        item.setText(content)
+        item.setForeground(QtGui.QColor(27, 151, 243))
+        self.textList.addItem(item)
 
     def show_message(self, content):
         item = QtWidgets.QListWidgetItem()
@@ -138,12 +147,8 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.textList.setIconSize(QtCore.QSize(32, 32))
 
 
-def init_window():
+if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
     window = ChatApp()  # Создаём объект
     window.show()  # Показываем окно
-    app.exec_()  # и запускаем приложение
-
-
-if __name__ == '__main__':
-    init_window()
+    sys.exit(app.exec_())  # и запускаем приложение

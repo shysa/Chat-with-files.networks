@@ -171,8 +171,8 @@ def send_file(file):
 
 def receive_file(data, file_name):
     file_name = file_name[:file_name.find(')')]
-    print('received file:',file_name)
-    f = open('dowloads\\' + file_name, 'wb')
+    print('received file:', file_name)
+    f = open('downloads\\' + file_name, 'wb')
     f.write(data)
     f.close()
     return file_name
