@@ -3,5 +3,5 @@
   "port2": "COM7",
   "baudrate": 115200,
   "timeout": 1,
-  "writeTimeout": "None"
+  "writeTimeout": 3
 }

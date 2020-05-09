@@ -1,6 +1,14 @@
 from PyQt5 import QtCore, QtWidgets
 from gui import info
 
+# ---------------------- InfoDialog -------------------------
+# --- класс модального окна | gui/info.py, gui/ui/info.ui ---
+# -----------------------------------------------------------
+# bOK               кнопка ОК (закрыть диалоговое окно)
+# setFixedSize      запрет на растягивание окна
+# Вызывается из ChatApp по кнопке тулбара Информация
+# -----------------------------------------------------------
+
 
 class InfoDialog(QtWidgets.QDialog, info.Ui_dialog):
     def __init__(self, parent=None):

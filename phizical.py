@@ -46,12 +46,12 @@ def portinit(com=utils.parser.get_port_parameters()):
     ser_1.parity = serial.PARITY_NONE  # set parity check: no parity
     ser_1.stopbits = serial.STOPBITS_ONE  # number of stop bits
     # ser.timeout = None          #block read
-    ser_1.timeout = 1  # non-block read
+    ser_1.timeout = com[3]  # non-block read
     # ser.timeout = 2              #timeout block read
     # ser_2.xonxoff = False  # disable software flow control
     # ser_2.rtscts = False  # disable hardware (RTS/CTS) flow control
     # ser_2.dsrdtr = False  # disable hardware (DSR/DTR) flow control
-    ser_1.writeTimeout = 20  # timeout for write
+    ser_1.writeTimeout = com[4]  # timeout for write
     try:
         ser_1.port = com[0]
         ser_1.open()
