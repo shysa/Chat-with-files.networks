@@ -24,7 +24,7 @@ def send(text, file=False, file_name=None):
         data_len = 255
         file_name = bytes(file_name, encoding='utf-8')
         prim_frame = bytes([message_id + 192, frame_amount // 65536, frame_amount % 65536 // 256, frame_amount % 256, data_len]) + file_name
-        prim_frame = prim_frame + bytes([ord(')') for i in range(128-len(file_name))])
+        prim_frame = prim_frame + bytes([ord('?') for i in range(128-len(file_name))])
         data_len = 127
         text = bytes([0 for i in range(128)]) + text
     else:

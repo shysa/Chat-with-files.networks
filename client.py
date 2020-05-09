@@ -65,6 +65,10 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.mConnect.triggered.connect(self.init_connection)
         self.mInfo.triggered.connect(self.create_dialog)
 
+    def closeEvent(self, event: QtGui.QCloseEvent):
+        self.close_connection()
+        event.accept()
+
     def close_connection(self):
         phizical.ser_close()
         print("Connection closed")
@@ -136,6 +140,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         item = QtWidgets.QListWidgetItem()
         item.setText(content)
         self.textList.addItem(item)
+        self.textList.scrollToBottom()
 
     @QtCore.pyqtSlot(str)
     def show_file(self, content):
@@ -148,6 +153,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
         self.textList.addItem(item)
         self.textList.setIconSize(QtCore.QSize(32, 32))
+        self.textList.scrollToBottom()
 
     def listen(self):
         self.port_listener = channel.plistener
