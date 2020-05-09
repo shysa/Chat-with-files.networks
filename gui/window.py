@@ -13,8 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(902, 714)
-
+        MainWindow.resize(906, 714)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("gui/icon/chat.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -22,30 +21,37 @@ class Ui_MainWindow(object):
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setObjectName("centralwidget")
 
-        self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 901, 641))
-        self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
-
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.centralwidget)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
 
-        self.textList = QtWidgets.QListWidget(self.verticalLayoutWidget)
+        self.textList = QtWidgets.QListWidget(self.centralwidget)
+        self.textList.setWordWrap(True)
+        self.textList.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
+        self.textList.setFont(QtGui.QFont('Helvetica', 10))
+        self.textList.setSpacing(5)
         self.textList.setObjectName("textList")
         self.verticalLayout.addWidget(self.textList)
 
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
 
-        self.message = QtWidgets.QTextEdit(self.verticalLayoutWidget)
+        self.message = QtWidgets.QTextEdit(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.message.sizePolicy().hasHeightForWidth())
         self.message.setSizePolicy(sizePolicy)
+        self.message.setMaximumSize(QtCore.QSize(16777215, 100))
+        self.message.setFont(QtGui.QFont('Helvetica', 10))
         self.message.setObjectName("message")
         self.horizontalLayout.addWidget(self.message)
 
@@ -54,7 +60,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setSpacing(6)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
 
-        self.bSend = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.bSend = QtWidgets.QPushButton(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -64,14 +70,19 @@ class Ui_MainWindow(object):
         self.bSend.setObjectName("bSend")
         self.verticalLayout_2.addWidget(self.bSend)
 
-        self.bSendFile = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.bSendFile = QtWidgets.QPushButton(self.centralwidget)
         self.bSendFile.setMinimumSize(QtCore.QSize(150, 40))
         self.bSendFile.setObjectName("bSendFile")
         self.verticalLayout_2.addWidget(self.bSendFile)
 
         self.horizontalLayout.addLayout(self.verticalLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout_2.addLayout(self.verticalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
+
+        self.statusBar = QtWidgets.QStatusBar(MainWindow)
+        self.statusBar.setObjectName("statusBar")
+        MainWindow.setStatusBar(self.statusBar)
 
         self.toolBar = QtWidgets.QToolBar(MainWindow)
         self.toolBar.setObjectName("toolBar")

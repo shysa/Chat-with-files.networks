@@ -7,6 +7,7 @@ class InfoDialog(QtWidgets.QDialog, info.Ui_dialog):
         super().__init__(parent, QtCore.Qt.Dialog)
         self.setupUi(self)
         self.init_handlers()
+        self.setFixedSize(self.size())
 
     def init_handlers(self):
         self.bOK.clicked.connect(self.close)

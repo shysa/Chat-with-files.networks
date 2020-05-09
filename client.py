@@ -1,9 +1,9 @@
 import sys
 import datetime
 from PyQt5 import QtGui, QtCore, QtWidgets
-from gui import window
 
-from utils import info_dialog
+from gui import window
+from gui.utils import info_dialog
 
 import phizical
 import channel
@@ -42,8 +42,6 @@ import channel
 # message           окно набора текстового сообщения
 # -----------------------------------------------------------
 
-# TODO: как словить приход? :D точнее, как понять когда пинать и вызывать receive, мне же еще надо на принимаемой
-#  стороне вызывать show_message/file
 
 class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     def __init__(self):
@@ -68,9 +66,12 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         quit()
 
     def init_connection(self):
-        phizical.ser_open()
-        phizical.ser_read()
-        print("Connection open! Start reading")
+        try:
+            phizical.ser_open()
+            phizical.ser_read()
+            print("Connection open! Start reading")
+        except:
+            self.show_message("Невозможно установить соединение с сервером")
 
     def create_dialog(self):
         if not self.infoDialog:
@@ -81,6 +82,9 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         try:
             message = self.message.toPlainText()
             if len(message) > 0:
+                # TODO: как сделать разные надписи для машины1 и машины2?
+                # TODO: как словить приход? :D точнее, как понять когда пинать и вызывать receive, мне же еще надо на
+                #  принимаемой стороне вызывать show_message/file
                 content = f"{datetime.datetime.now().strftime('%H:%M')} <Вы>: {message}"
 
                 phizical.ser_write(channel.send(content))
@@ -103,17 +107,19 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
                     phizical.ser_write(channel.send_file(file.name))
                     self.show_file(f.fileName())
-
                 except:
-                    pass
+                    self.show_message('Невозможно прикрепить файл')
 
     def save_dialog(self):
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выбрать папку для сохранения", "")
-        if directory:
-            print(directory)
+        item = self.textList.currentItem()
+
+        if item.data(QtCore.Qt.UserRole) == 1:
+            directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выбрать папку для сохранения", "")
+            if directory:
+                print(directory)
 
             # TODO: указывать полученную директорию
-            #channel.receive()
+            # channel.receive()
 
     def show_message(self, content):
         item = QtWidgets.QListWidgetItem()
@@ -126,6 +132,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         item = QtWidgets.QListWidgetItem()
         item.setIcon(iconfile)
         item.setText(content)
+        item.setData(QtCore.Qt.UserRole, 1)
 
         self.textList.addItem(item)
         self.textList.setIconSize(QtCore.QSize(32, 32))
