@@ -1,132 +1,142 @@
 import sys
-from PyQt5 import QtWidgets, QtGui, QtCore, QtWidgets
-from gui import guimain, guireg
+import datetime
+from PyQt5 import QtGui, QtCore, QtWidgets
+from gui import window
 
-from twisted.internet.protocol import ClientFactory
-from twisted.protocols.basic import LineOnlyReceiver
+from utils import info_dialog
 
-
-class ConnectorProtocol(LineOnlyReceiver):
-    factory: 'Connector'
-
-    def connectionMade(self):
-        self.factory.window.protocol = self
-        self.factory.window.text_list.addItem('Соединение установлено...')
-        self.factory.window.text_list.addItem('Отправьте сообщение вида \'login:your_name\'')
-
-    def lineReceived(self, line: bytes):
-        message = line.decode()
-
-        if message.startswith("#USRCNCT"):
-            message = message.replace("#USRCNCT", "")
-            self.factory.window.user_list.addItem(message)
-
-        elif message.startswith("#USRCLR"):
-            self.factory.window.user_list.clear()
-
-        else:
-            self.factory.window.text_list.addItem(message)
+import phizical
+import channel
 
 
-class Connector(ClientFactory):
-    window: 'ChatWindow'
-    protocol = ConnectorProtocol
+# ----------------------- ChatApp ---------------------------
+# -- класс главного окна | gui/window.py, gui/ui/window.ui --
+# -----------------------------------------------------------
+# Функции:
+# setupUI           инициализирует элементы интерфейса
+# init_handlers     связывает кнопки с обработчиками, какие
+#                   функции вызываются при нажатии
+# init_toolbar      связывает элементы тулбара с обработчи-
+#                   ками (подключение, выход, информация)
+# close_connection  закрытие содениния и портов
+# init_connection   открытие портов, установка соединения
+# create_dialog     вызов окна Информации
+# send_message      отправка сообщения, очистка окна
+# open_dialog       открытие модального диалогового окна вы-
+#                   бора файла для отправки, отправка файла
+# save_dialog       открытие модального диалогового окна вы-
+#                   бора директории для сохранения скачивае-
+#                   мого файла
+# show_message      добавление нового сообщения в основное
+#                   окно
+# show_file         добавление строки файла в основное окно
+# -----------------------------------------------------------
+# Переменные:
+# infoDialog        модальное диалоговое окно информации
+# bSend             кнопка Отправить (сообщение)
+# bSendFile         кнопка Выбрать файл (и отправить)
+# textList          основное окно с сообщениями и файлами
+# mExit             кнопка тулбара Выход
+# mConnect          кнопка тулбара Подключиться
+# mInfo             кнопка тулбара Информация
+# message           окно набора текстового сообщения
+# -----------------------------------------------------------
 
-    def __init__(self, app_window):
-        self.window = app_window
+# TODO: как словить приход? :D точнее, как понять когда пинать и вызывать receive, мне же еще надо на принимаемой
+#  стороне вызывать show_message/file
 
-    def clientConnectionFailed(self, connector, reason):
-        self.window.text_list.addItem('Соединение не установлено. Попробуйте позже')
-
-    def clientConnectionLost(self, connector, reason):
-        self.window.text_list.addItem('Соединение с сервером потеряно. Попробуйте позже')
-
-
-class ChatWindow(QtWidgets.QMainWindow, guimain.Ui_MainWindow):
-    protocol: ConnectorProtocol
-    reactor = None
-
+class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.init_handlers()
+        self.init_toolbar()
+        self.infoDialog = None
 
     def init_handlers(self):
-        self.send_button.clicked.connect(self.send_message)
-        self.exit_button.clicked.connect(self.close)
-        self.file_button.clicked.connect(self.open_dialog)
-        self.text_list.itemDoubleClicked.connect(self.save_clickEvent)
+        self.bSend.clicked.connect(self.send_message)
+        self.bSendFile.clicked.connect(self.open_dialog)
+        self.textList.itemDoubleClicked.connect(self.save_dialog)
 
-    def closeEvent(self, event):
-        self.reactor.callFromThread(self.reactor.stop)
+    def init_toolbar(self):
+        self.mExit.triggered.connect(self.close_connection)
+        self.mConnect.triggered.connect(self.init_connection)
+        self.mInfo.triggered.connect(self.create_dialog)
+
+    def close_connection(self):
+        print("Connection closed")
+        quit()
+
+    def init_connection(self):
+        phizical.ser_open()
+        phizical.ser_read()
+        print("Connection open! Start reading")
+
+    def create_dialog(self):
+        if not self.infoDialog:
+            self.infoDialog = info_dialog.InfoDialog()
+        self.infoDialog.show()
 
     def send_message(self):
         try:
-            message = self.message_text.toPlainText()
+            message = self.message.toPlainText()
             if len(message) > 0:
-                self.protocol.sendLine(message.encode())
-                self.message_text.setText('')
+                content = f"{datetime.datetime.now().strftime('%H:%M')} <Вы>: {message}"
+
+                phizical.ser_write(channel.send(content))
+                self.show_message(content)
+
+                self.message.clear()
             else:
-                self.text_list.addItem('Нельзя отправить пустое сообщение')
+                self.show_message('Нельзя отправить пустое сообщение')
         except:
-            self.text_list.addItem('Невозможно отправить сообщение')
+            self.show_message('Невозможно отправить сообщение')
 
     def open_dialog(self):
-        result = QtWidgets.QFileDialog.getOpenFileName(self, "Загрузить файл", "",
-                                                       "All Files (*);;Изображения (*.jpg *.jpeg *.png);;"
-                                                       "Текстовые файлы (*.txt)")
-        if result:
-            file = open(result[0], 'r')
+        filepath = QtWidgets.QFileDialog.getOpenFileName(self, "Загрузить файл", "")[0]
+        if filepath:
+            file = open(filepath, 'r')
             with file:
                 try:
-                    data = file.read()
-                    iconfile = QtGui.QIcon('gui/icon/download.png')
-                    item = QtWidgets.QListWidgetItem()
+                    print(file.name)
+                    f = QtCore.QFileInfo(filepath)
 
-                    item.setIcon(iconfile)
-                    item.setText(file.name)
-
-                    self.text_list.addItem(item)
-                    self.text_list.setIconSize(QtCore.QSize(32, 32))
+                    phizical.ser_write(channel.send_file(file.name))
+                    self.show_file(f.fileName())
 
                 except:
                     pass
 
-    def save_clickEvent(self, item):
-        print(item.text())
-
     def save_dialog(self):
-        options = QtWidgets.QFileDialog.Options()
-        result = QtWidgets.QFileDialog.getSaveFileName(self, "Сохранить файл", "",
-                                                       "All Files (*);;Изображения (*.jpg *.jpeg *.png);;"
-                                                       "Текстовые файлы (*.txt)",
-                                                       options=options)
-        if result:
-            print(result)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выбрать папку для сохранения", "")
+        if directory:
+            print(directory)
+
+            # TODO: указывать полученную директорию
+            #channel.receive()
+
+    def show_message(self, content):
+        item = QtWidgets.QListWidgetItem()
+        item.setText(content)
+        self.textList.addItem(item)
+
+    def show_file(self, content):
+        iconfile = QtGui.QIcon('gui/icon/download.png')
+
+        item = QtWidgets.QListWidgetItem()
+        item.setIcon(iconfile)
+        item.setText(content)
+
+        self.textList.addItem(item)
+        self.textList.setIconSize(QtCore.QSize(32, 32))
 
 
-class RegWindow(QtWidgets.QMainWindow, guireg.Ui_Dialog):
-    def __init__(self):
-        super().__init__()
-        self.setupUi(self)
+def init_window():
+    app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
+    window = ChatApp()  # Создаём объект
+    window.show()  # Показываем окно
+    app.exec_()  # и запускаем приложение
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    import qt5reactor
-
-    qt5reactor.install()
-
-    window = ChatWindow()
-    window.show()
-
-    from twisted.internet import reactor
-
-    reactor.connectTCP(
-        "localhost",
-        4000,
-        Connector(window)
-    )
-
-    window.reactor = reactor
-    reactor.run()
+    init_window()
