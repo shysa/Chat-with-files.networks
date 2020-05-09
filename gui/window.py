@@ -15,7 +15,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(906, 714)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../gui/icon/chat.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("gui/icon/chat.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setIconSize(QtCore.QSize(32, 32))
 
@@ -91,19 +91,19 @@ class Ui_MainWindow(object):
 
         self.mConnect = QtWidgets.QAction(MainWindow)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("../gui/icon/connect.svg"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon1.addPixmap(QtGui.QPixmap("gui/icon/connect.svg"), QtGui.QIcon.Normal, QtGui.QIcon.On)
         self.mConnect.setIcon(icon1)
         self.mConnect.setObjectName("mConnect")
 
         self.mExit = QtWidgets.QAction(MainWindow)
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("../gui/icon/exit.svg"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon2.addPixmap(QtGui.QPixmap("gui/icon/exit.svg"), QtGui.QIcon.Normal, QtGui.QIcon.On)
         self.mExit.setIcon(icon2)
         self.mExit.setObjectName("mExit")
 
         self.mInfo = QtWidgets.QAction(MainWindow)
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("../gui/icon/info.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("gui/icon/info.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.mInfo.setIcon(icon3)
         self.mInfo.setObjectName("mInfo")
 

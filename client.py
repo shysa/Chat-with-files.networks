@@ -34,6 +34,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.init_handlers()
         self.init_toolbar()
         self.infoDialog = None
+        self.statusBar.showMessage("Чтобы установить соединение и начать работу, нажмите Подключиться")
 
     # init_handlers     связывает кнопки с обработчиками, какие функции вызываются при нажатии
     def init_handlers(self):
@@ -56,6 +57,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
     # close_connection  закрытие содениния и портов
     def close_connection(self):
+        self.statusBar.showMessage("Отключение...")
         phizical.ser_close()
         print("Connection closed")
         QtWidgets.qApp.quit()
@@ -68,6 +70,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             phizical.ser_read()
             print("Connection open! Start reading")
             self.show_service("Соединение установлено")
+            self.statusBar.showMessage("Соединено")
             self.listen()
         except:
             self.show_service("Невозможно установить соединение")
@@ -138,7 +141,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     # show_file         добавление строки файла в основное окно
     @QtCore.pyqtSlot(str)
     def show_file(self, content):
-        iconfile = QtGui.QIcon('../gui/icon/download.png')
+        iconfile = QtGui.QIcon('gui/icon/download.png')
 
         item = QtWidgets.QListWidgetItem()
         item.setIcon(iconfile)

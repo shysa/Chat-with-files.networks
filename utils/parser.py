@@ -8,7 +8,7 @@ import json
 
 
 def get_port_parameters():
-    with open('../config.json', 'r') as fp:
+    with open('config.json', 'r') as fp:
         obj = json.load(fp)
 
         first_COM = obj["port1"]
