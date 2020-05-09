@@ -1,8 +1,13 @@
 import random
+import datetime
+
+import utils.listener
+pl = utils.listener.PortListener()
 
 
 def send(text, file=False, file_name=None):
 # ------------ splitting on frames
+    print('framing...', datetime.datetime.now())
     if not file:
         text = text.encode('utf-8')
     frame_amount = len(text) // 128
@@ -37,6 +42,7 @@ def send(text, file=False, file_name=None):
     frames[len(frames)-1] = frames[len(frames)-1] + bytes([ord(')') for i in range(133-len(frames[len(frames)-1]))])
 
 # ------------ encoding [4,7]
+    print('encoding...', datetime.datetime.now())
     frames_encoded = []
     for frame in frames:
         encoding1 = frame
@@ -73,6 +79,7 @@ def send(text, file=False, file_name=None):
         i = i + len(frame)
     print('total send', i, ', frames:', len(frames_encoded))
     print('send', frames_encoded[0])"""
+    print('transmitting...', datetime.datetime.now())
     return frames_encoded
 
 
@@ -87,6 +94,7 @@ def receive(frames_encoded):
         7: 5
     }
     frames = []
+    print('decoding...', datetime.datetime.now())
 
     #print('rec',len(frames_encoded))
 
@@ -129,6 +137,7 @@ def receive(frames_encoded):
     """for frame in frames:
         print('rec', frame)"""
     #frames[0] = frames[0][3:]           # KOSTYL!!!!!!!!!!!!!!!!!!!111
+    print('recovering...', datetime.datetime.now())
 
     message_id = 0
     frame_amount = 0
@@ -154,17 +163,23 @@ def receive(frames_encoded):
     if not isFile:
         text = text.decode()
         print(text)
+
+        pl.line_recieved(text)
+
+    print('ready!', datetime.datetime.now())
     if isFile:
         receive_file(text, file_name)
+
+        pl.file_recieved(file_name)
+
     #threading.Timer(0.1, receive(phizical.ser_read())).start()
-    return text
 
 
 def send_file(file):
     f = open(file, 'rb')
     data = f.read()
     f.close()
-    file_name = file[file.rfind("\\")+1:]
+    file_name = file[max(file.rfind("/"), file.rfind("\\"))+1:]
     #print(file_name)
     return send(data, True, file_name)
 
@@ -175,6 +190,7 @@ def receive_file(data, file_name):
     f = open('downloads\\' + file_name, 'wb')
     f.write(data)
     f.close()
+
     return file_name
 
 

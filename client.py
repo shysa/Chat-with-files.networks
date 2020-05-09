@@ -3,7 +3,7 @@ import datetime
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from gui import window
-from gui.utils import info_dialog
+from utils import info_dialog, listener
 
 import phizical
 import channel
@@ -75,6 +75,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             phizical.ser_read()
             print("Connection open! Start reading")
             self.show_service("Соединение установлено")
+            self.listen()
         except:
             self.show_service("Невозможно установить соединение")
 
@@ -88,8 +89,6 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             message = self.message.text()
             if len(message) > 0:
                 # TODO: как сделать разные надписи для машины1 и машины2?
-                # TODO: как словить приход? :D точнее, как понять когда пинать и вызывать receive, мне же еще надо на
-                #  принимаемой стороне вызывать show_message/file
                 content = f"{datetime.datetime.now().strftime('%H:%M')} <Вы>: {message}"
 
                 phizical.ser_write(channel.send(content))
@@ -106,7 +105,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         if filepath:
             try:
                 f = QtCore.QFileInfo(filepath)
-                print(f.absoluteFilePath())
+                print(f.absolutePath())
 
                 phizical.ser_write(channel.send_file(f.absoluteFilePath()))
                 self.show_file(f.fileName())
@@ -130,11 +129,13 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         item.setForeground(QtGui.QColor(27, 151, 243))
         self.textList.addItem(item)
 
+    @QtCore.pyqtSlot(str)
     def show_message(self, content):
         item = QtWidgets.QListWidgetItem()
         item.setText(content)
         self.textList.addItem(item)
 
+    @QtCore.pyqtSlot(str)
     def show_file(self, content):
         iconfile = QtGui.QIcon('gui/icon/download.png')
 
@@ -145,6 +146,11 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
         self.textList.addItem(item)
         self.textList.setIconSize(QtCore.QSize(32, 32))
+
+    def listen(self):
+        self.port_listener = listener.PortListener()
+        self.port_listener.line.connect(self.show_message)
+        self.port_listener.file.connect(self.show_file)
 
 
 if __name__ == '__main__':
