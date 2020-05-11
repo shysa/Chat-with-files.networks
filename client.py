@@ -1,5 +1,6 @@
 import sys
 import datetime
+import os
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from gui import window
@@ -113,14 +114,28 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     # save_dialog       открытие модального диалогового окна выбора директории для сохранения скачиваемого файла
     def save_dialog(self):
         item = self.textList.currentItem()
+        file_name = item.text()
 
         if item.data(QtCore.Qt.UserRole) == 1:
             directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выбрать папку для сохранения", "")
             if directory:
-                print(directory)
+                new_dir = directory + '/' + file_name
+                if not os.path.isfile(new_dir):
+                    os.replace("../downloads/"+file_name, new_dir)
+                else:
+                    i = 1
+                    new_file_name = file_name[:file_name.rfind('.')] +\
+                                    '(' + str(i) + ')' + file_name[file_name.rfind('.'):]
+                    new_dir = directory + '/' + new_file_name
+                    while os.path.isfile(new_dir):
+                        new_file_name = file_name[:file_name.rfind('.')] +\
+                                        '(' + str(i) + ')' + file_name[file_name.rfind('.'):]
+                        new_dir = directory + '/' + new_file_name
+                        i = i + 1
+                    else:
+                        os.replace("../downloads/" + file_name, new_dir)
 
-            # TODO: указывать полученную директорию
-            # channel.receive()
+                print(directory, file_name)
 
     # show_service      добавление служебного сообщения (об ошибке) в основное окно
     def show_service(self, content):

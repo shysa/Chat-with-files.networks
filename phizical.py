@@ -3,6 +3,7 @@
 
 #import serial.tools.list_ports
 import datetime
+
 import threading
 import time
 import serial
@@ -41,17 +42,22 @@ ser_1 = serial.Serial()
 def portinit(com=utils.parser.get_port_parameters()):
     # ser.port = "/dev/ttyUSB0"
     # ser.port = "/dev/ttyS2"
-    ser_1.baudrate = com[2]
+
+    from serial.tools import list_ports
+    ports_list = [comport.device for comport in list_ports.comports()]
+    print(ports_list)
+
+    ser_1.baudrate = com[4]
     ser_1.bytesize = serial.EIGHTBITS  # number of bits per bytes
     ser_1.parity = serial.PARITY_NONE  # set parity check: no parity
     ser_1.stopbits = serial.STOPBITS_ONE  # number of stop bits
     # ser.timeout = None          #block read
-    ser_1.timeout = com[3]  # non-block read
+    ser_1.timeout = com[5]  # non-block read
     # ser.timeout = 2              #timeout block read
     # ser_2.xonxoff = False  # disable software flow control
     # ser_2.rtscts = False  # disable hardware (RTS/CTS) flow control
     # ser_2.dsrdtr = False  # disable hardware (DSR/DTR) flow control
-    ser_1.writeTimeout = com[4]  # timeout for write
+    ser_1.writeTimeout = com[6]  # timeout for write
     try:
         ser_1.port = com[0]
         ser_1.open()

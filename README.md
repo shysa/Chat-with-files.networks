@@ -11,7 +11,7 @@
 ##
  - Для запуска программы из IDE удалить все `../` в путях к файлам 
  - Компиляция программы с предварительно установленным pyinstaller (`pip install pyinstaller`):
-   - `pyinstaller -c -F -w --icon=gui/icon/chat.ico client.py`
+   - `pyinstaller -c -F -w --onefile --icon=gui/icon/chat.ico client.py`
    - чтобы вместе с приложением открывалась системная консоль (для отладки) - удалить флаг `-w`
    - `--icon` опционален (установка иконки .exe)
    - папка build и client.spec после компиляции не нужны (вроде)
