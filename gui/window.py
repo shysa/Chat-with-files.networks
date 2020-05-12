@@ -113,15 +113,12 @@ class Ui_MainWindow(object):
         self.statusLabel.setScaledContents(True)
         self.statusLabel.setFixedSize(24, 24)
 
-
         self.toolBar.addAction(self.mConnect)
         self.toolBar.addAction(self.mExit)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.mInfo)
 
         self.toolBar.addWidget(self.statusLabel)
-        p = self.toolBar.frameGeometry().center() - QtCore.QRect(QtCore.QPoint(), self.statusLabel.sizeHint()).center()
-        self.statusLabel.move(p)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

@@ -10,12 +10,14 @@ from PyQt5 import QtCore
 # user_connected     | connected = разрыв связи / связь поддерживается
 #                    | user_connected = соединение с другим пользова-
 #                    | телем
+# transmission_error | transmission_error = ошибка передачи файла
 # -------------------|-------------------------------------------------
 # line_recieved      | функции-триггеры
 # file_recieved      | line = show_message / file = show_file
 # connecting         | функции, проверяющие состояние подключения поль-
 # user_connecting    | зователей
 #                    | 0 - нет подключения, 1 - соединение установлено
+# transmission_failed| функция-триггер ошибки передачи
 #
 # Определен в channels.py и связан с ChatApp
 # ---------------------------------------------------------------------

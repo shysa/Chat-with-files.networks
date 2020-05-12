@@ -34,7 +34,9 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.setupUi(self)
         self.init_handlers()
         self.init_toolbar()
+        self.block_buttons()
         self.infoDialog = None
+        self.userStatus = False
         self.statusBar.showMessage("Чтобы установить соединение и начать работу, нажмите Подключиться")
 
     # init_handlers     связывает кнопки с обработчиками, какие функции вызываются при нажатии
@@ -72,6 +74,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             print("Connection open! Start reading")
             self.show_service("Подключено")
             self.statusBar.showMessage("Соединено")
+            self.unblock_buttons()
             self.listen()
         except:
             self.show_service("Невозможно установить соединение")
@@ -189,11 +192,23 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     # show_user_connect добавление строки файла в основное окно
     @QtCore.pyqtSlot(bool)
     def show_user_connect(self, state):
-        self.statusBar.showMessage("Соединение с собеседником потеряно")
+        if state != self.userStatus and state == True:
+            self.userStatus = True
+            pixmap = QtGui.QPixmap("gui/icon/online.png")
+            self.statusLabel.setPixmap(self.pixmap)
+
+        if state != self.userStatus and state == False:
+            self.userStatus = False
+            pixmap = QtGui.QPixmap("gui/icon/offline.png")
+            self.statusLabel.setPixmap(self.pixmap)
 
     # listen            создает объект port_listener в главном окне (связующее звено с канальным уров-
     #                   нем), и связывает сигналы [line - получено сообщение, file - получен файл] с
-    #                   show_message и show_file
+    #                   [line - получено сообщение | show_message]
+    #                   [file - получен файл | show_file]
+    #                   [connected - состояние соединения, реагирует когда соединения нет | show_disconnect]
+    #                   [user_connected - состояние подключения собеседника | show_user_connect]
+    #                   [transmission_error - ошибка передачи файла или сообщения | show_service]
     def listen(self):
         self.port_listener = channel.plistener
         self.port_listener.line.connect(self.show_message)
@@ -204,7 +219,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)      # Новый экземпляр QApplication
-    window = ChatApp()                          # Создает объект
-    window.show()                               # Показывает окно
-    sys.exit(app.exec_())                       # и запускает приложение
+    app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
+    window = ChatApp()  # Создает объект
+    window.show()  # Показывает окно
+    sys.exit(app.exec_())  # и запускает приложение
