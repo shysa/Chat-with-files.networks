@@ -1,4 +1,5 @@
 import json
+from sys import platform
 
 # -------------------------------------------------------------------
 # Функция парсит config.json и возвращает значения параметров
@@ -11,8 +12,13 @@ def get_port_parameters():
     with open('../config.json', 'r') as fp:
         obj = json.load(fp)
 
-        first_COM = obj["port1"]
-        second_COM = obj["port2"]
+        if platform == "win32":
+            first_COM = obj["win_port1"]
+            second_COM = obj["win_port2"]
+        else:
+            first_COM = obj["linux_port1"]
+            second_COM = obj["linux_port2"]
+
         baudrate = obj["baudrate"]
         timeout = obj["timeout"]
         writeTimeout = obj["writeTimeout"]
