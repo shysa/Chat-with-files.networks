@@ -161,7 +161,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     # show_file         добавление строки файла в основное окно
     @QtCore.pyqtSlot(str)
     def show_file(self, content):
-        iconfile = QtGui.QIcon('gui/icon/download.png')
+        iconfile = QtGui.QIcon('../gui/icon/download.png')
 
         item = QtWidgets.QListWidgetItem()
         item.setIcon(iconfile)
