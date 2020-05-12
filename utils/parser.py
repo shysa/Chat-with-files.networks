@@ -9,7 +9,7 @@ from sys import platform
 
 
 def get_port_parameters():
-    with open('config.json', 'r') as fp:
+    with open('../config.json', 'r') as fp:
         obj = json.load(fp)
 
         if platform == "win32":

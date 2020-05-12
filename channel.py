@@ -187,7 +187,7 @@ def send_file(file):
 
 def receive_file(data, file_name):
     print('received file:', file_name)
-    f = open('downloads\\' + file_name, 'wb')
+    f = open('../downloads\\' + file_name, 'wb')
     f.write(data)
     f.close()
     return file_name
@@ -195,6 +195,20 @@ def receive_file(data, file_name):
 
 def send_nudes(nudes):
     pass
+
+
+def listener_connection(state):
+    plistener.connecting(state)
+
+
+def listener_user_connection(state):
+    plistener.user_connecting(state)
+
+
+def listener_transmission_failed():
+    plistener.transmission_failed()
+
+
 
 
 #receive(send_file(r'C:\Users\Ilya\Downloads\VID_20200428_120510.mp4'))

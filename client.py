@@ -47,10 +47,11 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.bSendFile.clicked.connect(self.open_dialog)
         self.textList.itemDoubleClicked.connect(self.save_dialog)
 
-    # init_toolbar      связывает элементы тулбара с обработчиками (подключение, выход, информация)
+    # init_toolbar      связывает элементы тулбара с обработчиками (подключение, разрыв связи, выход, информация)
     def init_toolbar(self):
         self.mExit.triggered.connect(self.close_connection)
         self.mConnect.triggered.connect(self.init_connection)
+        self.mDisonnect.triggered.connect(phizical.ser_close)
         self.mInfo.triggered.connect(self.create_dialog)
 
     # closeEvent        переопределение события close (X)
@@ -124,7 +125,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             if directory:
                 new_dir = directory + '/' + file_name
                 if not os.path.isfile(new_dir):
-                    os.replace("downloads/" + file_name, new_dir)
+                    os.replace("../downloads/" + file_name, new_dir)
                 else:
                     i = 1
                     new_file_name = file_name[:file_name.rfind('.')] + \
@@ -136,7 +137,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
                         new_dir = directory + '/' + new_file_name
                         i = i + 1
                     else:
-                        os.replace("downloads/" + file_name, new_dir)
+                        os.replace("../downloads/" + file_name, new_dir)
 
                 print(directory, file_name)
 
@@ -175,9 +176,8 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     #                   подключиться" и блокирует кнопки Отправить и Прикрепить файл
     @QtCore.pyqtSlot(bool)
     def show_disconnect(self, state):
-        if state == 0:
-            self.statusBar.showMessage("Соединение потеряно. Нажмите Подключиться")
-            self.block_buttons()
+        self.statusBar.showMessage("Соединение потеряно. Нажмите Подключиться")
+        self.block_buttons()
 
     # block_buttons     делает кнопки Отправить и Прикрепить файл некликабельными
     def block_buttons(self):
@@ -189,17 +189,17 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.bSend.setEnabled(True)
         self.bSendFile.setEnabled(True)
 
-    # show_user_connect добавление строки файла в основное окно
+    # show_user_connect меняет состояние подключения собеседника в тулбаре
     @QtCore.pyqtSlot(bool)
     def show_user_connect(self, state):
-        if state != self.userStatus and state == True:
+        if state != self.userStatus and state:
             self.userStatus = True
-            pixmap = QtGui.QPixmap("gui/icon/online.png")
+            self.pixmap = QtGui.QPixmap("../gui/icon/online.png")
             self.statusLabel.setPixmap(self.pixmap)
 
-        if state != self.userStatus and state == False:
+        if state != self.userStatus and not state:
             self.userStatus = False
-            pixmap = QtGui.QPixmap("gui/icon/offline.png")
+            self.pixmap = QtGui.QPixmap("../gui/icon/offline.png")
             self.statusLabel.setPixmap(self.pixmap)
 
     # listen            создает объект port_listener в главном окне (связующее звено с канальным уров-
@@ -213,13 +213,13 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.port_listener = channel.plistener
         self.port_listener.line.connect(self.show_message)
         self.port_listener.file.connect(self.show_file)
-        self.port_listener.connected(self.show_disconnect)
-        self.port_listener.user_connected(self.show_user_connect)
-        self.port_listener.transmission_error(self.show_service)
+        self.port_listener.connected.connect(self.show_disconnect)
+        self.port_listener.user_connected.connect(self.show_user_connect)
+        self.port_listener.transmission_error.connect(self.show_service)
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
-    window = ChatApp()  # Создает объект
-    window.show()  # Показывает окно
-    sys.exit(app.exec_())  # и запускает приложение
+    window = ChatApp()                      # Создает объект
+    window.show()                           # Показывает окно
+    sys.exit(app.exec_())                   # и запускает приложение

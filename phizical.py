@@ -3,7 +3,6 @@
 
 #import serial.tools.list_ports
 import datetime
-
 import threading
 import time
 import serial
@@ -42,22 +41,17 @@ ser_1 = serial.Serial()
 def portinit(com=utils.parser.get_port_parameters()):
     # ser.port = "/dev/ttyUSB0"
     # ser.port = "/dev/ttyS2"
-
-    from serial.tools import list_ports
-    ports_list = [comport.device for comport in list_ports.comports()]
-    print(ports_list)
-
-    ser_1.baudrate = com[4]
+    ser_1.baudrate = com[2]
     ser_1.bytesize = serial.EIGHTBITS  # number of bits per bytes
     ser_1.parity = serial.PARITY_NONE  # set parity check: no parity
     ser_1.stopbits = serial.STOPBITS_ONE  # number of stop bits
     # ser.timeout = None          #block read
-    ser_1.timeout = com[5]  # non-block read
+    ser_1.timeout = com[3]  # non-block read
     # ser.timeout = 2              #timeout block read
     # ser_2.xonxoff = False  # disable software flow control
     # ser_2.rtscts = False  # disable hardware (RTS/CTS) flow control
     # ser_2.dsrdtr = False  # disable hardware (DSR/DTR) flow control
-    ser_1.writeTimeout = com[6]  # timeout for write
+    ser_1.writeTimeout = com[4]  # timeout for write
     try:
         ser_1.port = com[0]
         ser_1.open()
@@ -69,6 +63,7 @@ def portinit(com=utils.parser.get_port_parameters()):
 def ser_close():
     try:
         ser_1.close()
+        channel.listener_connection(ser_1.isOpen())
     except Exception as e:
         print("error close serial port: " + str(e))
         exit()
@@ -81,6 +76,7 @@ frames = []
 def ser_open():
     try:
         ser_1.open()
+        channel.listener_connection(ser_1.isOpen())
     except Exception as e:
         print("error open serial port: " + str(e))
         exit()
@@ -89,20 +85,25 @@ def ser_open():
 def ser_write(binary_message):
     ser_1.flushInput()  # flush input buffer, discarding all its contents
     ser_1.flushOutput()  # flush output buffer, aborting current output
-    if ser_1.isOpen():
-        i = 0
+    channel.listener_connection(ser_1.isOpen())
+    channel.listener_user_connection(ser_1.dsr)
+    print('ser_write top', ser_1.isOpen(), ser_1.dsr)
+    if ser_1.isOpen() and ser_1.dsr and ser_1.cts:
         for frame in binary_message:
             try:
                 ser_1.write(frame)
                 #print('WRITE', i, datetime.datetime.now())
                 ser_1.flush()
-                # print("write data: Hello")
-                #time.sleep(0.0005)  # give the serial port sometime to receive the data
-                i = i +1
             except Exception as e1:
+                if not ser_1.cts:
+                    channel.listener_transmission_failed()
                 print("error communicating write...: " + str(e1))
+    elif ser_1.isOpen() and not ser_1.cts:
+        channel.listener_transmission_failed()
     else:
-        print("cannot open serial port ")
+        channel.listener_connection(ser_1.isOpen())
+        channel.listener_user_connection(ser_1.dsr)
+        print("cannot open serial port, write", ser_1.isOpen(), ser_1.dsr)
 
 
 def ser_read(ser=ser_1):
@@ -110,6 +111,11 @@ def ser_read(ser=ser_1):
     global frames
     global read_delay
     if ser.isOpen():
+        if priem == 0:
+            channel.listener_user_connection(ser.dsr)
+            channel.listener_connection(ser_1.isOpen())
+            print('ser_read top', ser_1.isOpen(), ser_1.dsr)
+            #print(ser.cts, ser.dsr, ser.ri, ser.cd)
         if ser.in_waiting == 0 and priem == 1:
             priem = 0
             read_delay = 0.5
@@ -125,13 +131,8 @@ def ser_read(ser=ser_1):
                 #print('READ', ser_2.in_waiting, datetime.datetime.now())
                 frames.append(response)
     else:
-        print("cannot open serial port ")
+        channel.listener_connection(ser_1.isOpen())
+        channel.listener_user_connection(False)
+        print("cannot open serial port, read", ser_1.isOpen())
         return 1
     threading.Timer(read_delay, ser_read).start()
-
-
-"""ser_open()
-ser_read()
-while True:
-    ser_write(channel.send(input()))"""
-#ser_write(channel.send_file(r"C:\Users\Ilya\Downloads\zheltogolovyj_amazon_popugaj_ptitsa_133941_3840x2400.jpg"))

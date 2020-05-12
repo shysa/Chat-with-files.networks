@@ -15,9 +15,12 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(906, 714)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("gui/icon/chat.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../gui/icon/chat.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setIconSize(QtCore.QSize(32, 32))
+
+        self.layout_toolbar = QtWidgets.QHBoxLayout()
+        self.layout_toolbar.setObjectName("layout_toolbar")
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -29,9 +32,12 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.centralwidget)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
         self.verticalLayout.setObjectName("verticalLayout")
+
+        self.verticalLayout.addLayout(self.layout_toolbar)
 
         self.textList = QtWidgets.QListWidget(self.centralwidget)
         self.textList.setWordWrap(True)
@@ -91,34 +97,45 @@ class Ui_MainWindow(object):
 
         self.mConnect = QtWidgets.QAction(MainWindow)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("gui/icon/connect.svg"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon1.addPixmap(QtGui.QPixmap("../gui/icon/connected.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
         self.mConnect.setIcon(icon1)
         self.mConnect.setObjectName("mConnect")
 
+        self.mDisonnect = QtWidgets.QAction(MainWindow)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap("../gui/icon/disconnected.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.mDisonnect.setIcon(icon4)
+        self.mDisonnect.setObjectName("mDisonnect")
+
         self.mExit = QtWidgets.QAction(MainWindow)
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("gui/icon/exit.svg"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon2.addPixmap(QtGui.QPixmap("../gui/icon/exit.svg"), QtGui.QIcon.Normal, QtGui.QIcon.On)
         self.mExit.setIcon(icon2)
         self.mExit.setObjectName("mExit")
 
         self.mInfo = QtWidgets.QAction(MainWindow)
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("gui/icon/info.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("../gui/icon/info.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.mInfo.setIcon(icon3)
         self.mInfo.setObjectName("mInfo")
 
         self.statusLabel = QtWidgets.QLabel(self.centralwidget)
-        self.pixmap = QtGui.QPixmap("gui/icon/offline.png")
-        self.statusLabel.setPixmap(self.pixmap)
         self.statusLabel.setScaledContents(True)
         self.statusLabel.setFixedSize(24, 24)
+        self.statusLabel.setAlignment(QtCore.Qt.AlignRight)
+
+        self.pixmap = QtGui.QPixmap("../gui/icon/offline.png")
+        self.statusLabel.setPixmap(self.pixmap)
 
         self.toolBar.addAction(self.mConnect)
+        self.toolBar.addAction(self.mDisonnect)
         self.toolBar.addAction(self.mExit)
         self.toolBar.addSeparator()
         self.toolBar.addAction(self.mInfo)
 
-        self.toolBar.addWidget(self.statusLabel)
+        self.layout_toolbar.addWidget(self.toolBar)
+        self.layout_toolbar.addWidget(self.statusLabel)
+        self.layout_toolbar.setContentsMargins(0, 0, 10, 0)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -132,3 +149,4 @@ class Ui_MainWindow(object):
         self.mConnect.setText(_translate("MainWindow", "Подключиться"))
         self.mExit.setText(_translate("MainWindow", "Выход"))
         self.mInfo.setText(_translate("MainWindow", "Информация"))
+        self.statusLabel.setToolTip(_translate("MainWindow", "Статус собеседника"))
