@@ -70,7 +70,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             phizical.ser_open()
             phizical.ser_read()
             print("Connection open! Start reading")
-            self.show_service("Соединение установлено")
+            self.show_service("Подключено")
             self.statusBar.showMessage("Соединено")
             self.listen()
         except:
@@ -121,7 +121,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             if directory:
                 new_dir = directory + '/' + file_name
                 if not os.path.isfile(new_dir):
-                    os.replace("../downloads/" + file_name, new_dir)
+                    os.replace("downloads/" + file_name, new_dir)
                 else:
                     i = 1
                     new_file_name = file_name[:file_name.rfind('.')] + \
@@ -133,11 +133,12 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
                         new_dir = directory + '/' + new_file_name
                         i = i + 1
                     else:
-                        os.replace("../downloads/" + file_name, new_dir)
+                        os.replace("downloads/" + file_name, new_dir)
 
                 print(directory, file_name)
 
     # show_service      добавление служебного сообщения (об ошибке) в основное окно
+    @QtCore.pyqtSlot(str)
     def show_service(self, content):
         item = QtWidgets.QListWidgetItem()
         item.setText(content)
@@ -156,7 +157,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     # show_file         добавление строки файла в основное окно
     @QtCore.pyqtSlot(str)
     def show_file(self, content):
-        iconfile = QtGui.QIcon('../gui/icon/download.png')
+        iconfile = QtGui.QIcon('gui/icon/download.png')
 
         item = QtWidgets.QListWidgetItem()
         item.setIcon(iconfile)
@@ -167,6 +168,29 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.textList.setIconSize(QtCore.QSize(32, 32))
         self.textList.scrollToBottom()
 
+    # show_disconnect   в случае разрыва соединения изменяет статус на "Соединение потеряно. Нажмите
+    #                   подключиться" и блокирует кнопки Отправить и Прикрепить файл
+    @QtCore.pyqtSlot(bool)
+    def show_disconnect(self, state):
+        if state == 0:
+            self.statusBar.showMessage("Соединение потеряно. Нажмите Подключиться")
+            self.block_buttons()
+
+    # block_buttons     делает кнопки Отправить и Прикрепить файл некликабельными
+    def block_buttons(self):
+        self.bSend.setEnabled(False)
+        self.bSendFile.setEnabled(False)
+
+    # unblock_buttons   делает доступными для нажатия кнопки Отправить и Прикрепить файл
+    def unblock_buttons(self):
+        self.bSend.setEnabled(True)
+        self.bSendFile.setEnabled(True)
+
+    # show_user_connect добавление строки файла в основное окно
+    @QtCore.pyqtSlot(bool)
+    def show_user_connect(self, state):
+        self.statusBar.showMessage("Соединение с собеседником потеряно")
+
     # listen            создает объект port_listener в главном окне (связующее звено с канальным уров-
     #                   нем), и связывает сигналы [line - получено сообщение, file - получен файл] с
     #                   show_message и show_file
@@ -174,6 +198,9 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
         self.port_listener = channel.plistener
         self.port_listener.line.connect(self.show_message)
         self.port_listener.file.connect(self.show_file)
+        self.port_listener.connected(self.show_disconnect)
+        self.port_listener.user_connected(self.show_user_connect)
+        self.port_listener.transmission_error(self.show_service)
 
 
 if __name__ == '__main__':

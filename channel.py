@@ -187,7 +187,7 @@ def send_file(file):
 
 def receive_file(data, file_name):
     print('received file:', file_name)
-    f = open('../downloads\\' + file_name, 'wb')
+    f = open('downloads\\' + file_name, 'wb')
     f.write(data)
     f.close()
     return file_name
