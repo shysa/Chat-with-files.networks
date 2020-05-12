@@ -74,7 +74,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             phizical.ser_read()
             print("Connection open! Start reading")
             self.show_service("Подключено")
-            self.statusBar.showMessage("Соединено")
+            self.statusBar.showMessage("Порт подключен")
             self.unblock_buttons()
             self.listen()
         except:
@@ -176,7 +176,7 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
     #                   подключиться" и блокирует кнопки Отправить и Прикрепить файл
     @QtCore.pyqtSlot(bool)
     def show_disconnect(self, state):
-        self.statusBar.showMessage("Соединение потеряно. Нажмите Подключиться")
+        self.statusBar.showMessage("Соединение потеряно. Порт не найден")
         self.block_buttons()
 
     # block_buttons     делает кнопки Отправить и Прикрепить файл некликабельными
