@@ -1,6 +1,6 @@
 import sys
-import datetime
 import os
+import datetime
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from gui import window
@@ -121,14 +121,14 @@ class ChatApp(QtWidgets.QMainWindow, window.Ui_MainWindow):
             if directory:
                 new_dir = directory + '/' + file_name
                 if not os.path.isfile(new_dir):
-                    os.replace("../downloads/"+file_name, new_dir)
+                    os.replace("../downloads/" + file_name, new_dir)
                 else:
                     i = 1
-                    new_file_name = file_name[:file_name.rfind('.')] +\
+                    new_file_name = file_name[:file_name.rfind('.')] + \
                                     '(' + str(i) + ')' + file_name[file_name.rfind('.'):]
                     new_dir = directory + '/' + new_file_name
                     while os.path.isfile(new_dir):
-                        new_file_name = file_name[:file_name.rfind('.')] +\
+                        new_file_name = file_name[:file_name.rfind('.')] + \
                                         '(' + str(i) + ')' + file_name[file_name.rfind('.'):]
                         new_dir = directory + '/' + new_file_name
                         i = i + 1
